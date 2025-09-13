@@ -36,6 +36,17 @@ public class InMemoryUserService {
         simpleUser.setAccountNonLocked(true);
         simpleUser.setCredentialsNonExpired(true);
         users.put("simpleuser", simpleUser);
+        
+        // Create cu2 user
+        User cu2User = new User();
+        cu2User.setUsername("cu2@gmail.com");
+        cu2User.setEmail("cu2@gmail.com");
+        cu2User.setPassword(passwordEncoder.encode("12345678"));
+        cu2User.setEnabled(true);
+        cu2User.setAccountNonExpired(true);
+        cu2User.setAccountNonLocked(true);
+        cu2User.setCredentialsNonExpired(true);
+        users.put("cu2@gmail.com", cu2User);
     }
     
     public Optional<User> findByUsername(String username) {

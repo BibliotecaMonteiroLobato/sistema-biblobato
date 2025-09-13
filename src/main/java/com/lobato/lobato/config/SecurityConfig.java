@@ -28,14 +28,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authz -> authz
-                            .requestMatchers("/", "/login", "/register", "/test-user", "/debug-users", "/create-simple-user", "/list-all-users").permitAll()
-                .requestMatchers("/dashboard", "/profile", "/settings", "/reports").authenticated()
+                            .requestMatchers("/", "/login", "/register", "/test-register", "/test-user", "/debug-users", "/create-simple-user", "/list-all-users").permitAll()
+                .requestMatchers("/profile", "/settings", "/reports", "/users", "/books", "/loans", "/returns").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/perform_login")
-                .defaultSuccessUrl("/dashboard", true)
+                .defaultSuccessUrl("/users", true)
                 .failureUrl("/login?error=true")
                 .usernameParameter("username")
                 .passwordParameter("password")

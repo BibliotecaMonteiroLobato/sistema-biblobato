@@ -15,9 +15,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
     
-    @Autowired
-    private InMemoryUserService inMemoryUserService;
-    
     private PasswordEncoder passwordEncoder;
     
     @Autowired
@@ -27,46 +24,21 @@ public class CustomUserDetailsService implements UserDetailsService {
     
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        try {
-            // Try MongoDB first
-            User user = userRepository.findByUsername(username)
-                    .orElse(null);
-            if (user != null) {
-                return user;
-            }
-        } catch (Exception e) {
-            System.out.println("MongoDB error, falling back to in-memory: " + e.getMessage());
-        }
-        
-        // Fall back to in-memory service
-        User user = inMemoryUserService.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         return user;
     }
     
     public User saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        try {
-            return userRepository.save(user);
-        } catch (Exception e) {
-            System.out.println("MongoDB save error, falling back to in-memory: " + e.getMessage());
-            return inMemoryUserService.save(user);
-        }
+        return userRepository.save(user);
     }
     
     public boolean existsByUsername(String username) {
-        try {
-            return userRepository.existsByUsername(username);
-        } catch (Exception e) {
-            return inMemoryUserService.existsByUsername(username);
-        }
+        return userRepository.existsByUsername(username);
     }
     
     public boolean existsByEmail(String email) {
-        try {
-            return userRepository.existsByEmail(email);
-        } catch (Exception e) {
-            return inMemoryUserService.existsByEmail(email);
-        }
+        return userRepository.existsByEmail(email);
     }
 }

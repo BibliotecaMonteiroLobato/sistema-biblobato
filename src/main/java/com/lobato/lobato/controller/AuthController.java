@@ -2,21 +2,17 @@ package com.lobato.lobato.controller;
 
 import com.lobato.lobato.model.User;
 import com.lobato.lobato.service.CustomUserDetailsService;
-import com.lobato.lobato.service.InMemoryUserService;
 import com.lobato.lobato.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
-
-import jakarta.validation.Valid;
 import java.security.Principal;
 
 @Controller
@@ -27,9 +23,6 @@ public class AuthController {
     
     @Autowired
     private UserRepository userRepository;
-    
-    @Autowired
-    private InMemoryUserService inMemoryUserService;
     
     @GetMapping("/")
     public String home() {
@@ -46,41 +39,11 @@ public class AuthController {
                        @RequestParam(value = "logout", required = false) String logout,
                        Model model) {
         if (error != null) {
-            model.addAttribute("error", "Invalid username or password!");
+            model.addAttribute("error", "Nome de usuário ou senha inválidos! Use seu nome de usuário (não email) para fazer login.");
         }
         if (logout != null) {
             model.addAttribute("message", "You have been logged out successfully!");
         }
-        return "login";
-    }
-    
-    @GetMapping("/register")
-    public String register(Model model) {
-        model.addAttribute("user", new User());
-        return "register";
-    }
-    
-    @PostMapping("/register")
-    public String registerUser(@Valid @ModelAttribute("user") User user, 
-                              BindingResult bindingResult, 
-                              Model model) {
-        
-        if (bindingResult.hasErrors()) {
-            return "register";
-        }
-        
-        if (userDetailsService.existsByUsername(user.getUsername())) {
-            model.addAttribute("error", "Username already exists!");
-            return "register";
-        }
-        
-        if (userDetailsService.existsByEmail(user.getEmail())) {
-            model.addAttribute("error", "Email already exists!");
-            return "register";
-        }
-        
-        userDetailsService.saveUser(user);
-        model.addAttribute("message", "User registered successfully! Please login.");
         return "login";
     }
     
@@ -127,27 +90,7 @@ public class AuthController {
             
             return response.toString();
         } catch (Exception e) {
-            // Fall back to in-memory service
-            StringBuilder response = new StringBuilder();
-            response.append("MongoDB error (").append(e.getMessage()).append("), showing in-memory users:<br><br>");
-            
-            // Access in-memory users through the service
-            try {
-                java.util.Map<String, User> inMemoryUsers = inMemoryUserService.getAllUsers();
-                response.append("Total users found in memory: ").append(inMemoryUsers.size()).append("<br><br>");
-                
-                for (User user : inMemoryUsers.values()) {
-                    response.append("Username: ").append(user.getUsername()).append("<br>");
-                    response.append("Email: ").append(user.getEmail()).append("<br>");
-                    response.append("Enabled: ").append(user.isEnabled()).append("<br>");
-                    response.append("Password (first 20 chars): ").append(user.getPassword().substring(0, Math.min(20, user.getPassword().length()))).append("...<br>");
-                    response.append("---<br><br>");
-                }
-            } catch (Exception ex) {
-                response.append("Error accessing in-memory users: ").append(ex.getMessage());
-            }
-            
-            return response.toString();
+            return "MongoDB error: " + e.getMessage();
         }
     }
     
@@ -249,12 +192,6 @@ public class AuthController {
         }
     }
     
-    @GetMapping("/dashboard")
-    public String dashboard(Principal principal, Model model) {
-        model.addAttribute("username", principal.getName());
-        return "dashboard";
-    }
-    
     @GetMapping("/profile")
     public String profile(Principal principal, Model model) {
         model.addAttribute("username", principal.getName());
@@ -267,9 +204,211 @@ public class AuthController {
         return "settings";
     }
     
+    @GetMapping("/users")
+    public String users(Principal principal, Model model) {
+        model.addAttribute("username", principal.getName());
+        List<User> allUsers = userRepository.findAll();
+        model.addAttribute("users", allUsers);
+        return "users";
+    }
+    
+    @GetMapping("/books")
+    public String books(Principal principal, Model model) {
+        model.addAttribute("username", principal.getName());
+        return "redirect:/users"; // Redirect to users for now
+    }
+    
+    @GetMapping("/loans")
+    public String loans(Principal principal, Model model) {
+        model.addAttribute("username", principal.getName());
+        return "redirect:/users"; // Redirect to users for now
+    }
+    
+    @GetMapping("/returns")
+    public String returns(Principal principal, Model model) {
+        model.addAttribute("username", principal.getName());
+        return "redirect:/users"; // Redirect to users for now
+    }
+    
     @GetMapping("/reports")
     public String reports(Principal principal, Model model) {
         model.addAttribute("username", principal.getName());
         return "reports";
+    }
+    
+    @GetMapping("/register")
+    public String showRegisterForm(Model model) {
+        model.addAttribute("user", new User());
+        return "register";
+    }
+    
+    @GetMapping("/test-register")
+    @ResponseBody
+    public String testRegister() {
+        try {
+            User testUser = new User();
+            testUser.setUsername("claudia_teste");
+            testUser.setEmail("claudia@teste.com");
+            testUser.setPassword("senha123");
+            testUser.setNome("Claudia Teste");
+            testUser.setTelefone("(11) 90000-0000");
+            testUser.setCpf("111.111.111-11");
+            testUser.setRg("11.111.111-1");
+            testUser.setLogradouro("Av. Brasil");
+            testUser.setCep("08775-999");
+            testUser.setNumero("333");
+            testUser.setComplemento("Casa 2");
+            testUser.setBairro("Mooca");
+            testUser.setCidade("São Paulo");
+            testUser.setEstado("São Paulo");
+            
+            testUser.setEnabled(true);
+            testUser.setAccountNonExpired(true);
+            testUser.setAccountNonLocked(true);
+            testUser.setCredentialsNonExpired(true);
+            
+            User savedUser = userDetailsService.saveUser(testUser);
+            
+            return "Usuário teste criado com sucesso! ID: " + savedUser.getId();
+        } catch (Exception e) {
+            return "Erro ao criar usuário teste: " + e.getMessage();
+        }
+    }
+    
+    @PostMapping("/register")
+    public String register(User user, Model model) {
+        try {
+            // Debug logs
+            System.out.println("=== DEBUG REGISTER ===");
+            System.out.println("Nome: " + user.getNome());
+            System.out.println("Email: " + user.getEmail());
+            System.out.println("CPF: " + user.getCpf());
+            System.out.println("Telefone: " + user.getTelefone());
+            System.out.println("Username: " + user.getUsername());
+            System.out.println("======================");
+            
+            // Check if username already exists
+            if (userDetailsService.existsByUsername(user.getUsername())) {
+                model.addAttribute("error", "Nome de usuário já existe. Escolha outro nome de usuário.");
+                return "register";
+            }
+            
+            // Check if email already exists
+            if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+                model.addAttribute("error", "E-mail já cadastrado. Use outro e-mail.");
+                return "register";
+            }
+            
+            // Set username as nome if username is empty
+            if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
+                user.setUsername(user.getNome());
+            }
+            
+            // Set UserDetails fields
+            user.setEnabled(true);
+            user.setAccountNonExpired(true);
+            user.setAccountNonLocked(true);
+            user.setCredentialsNonExpired(true);
+            
+            // Save user
+            userDetailsService.saveUser(user);
+            
+            return "redirect:/login?registered=true";
+            
+        } catch (Exception e) {
+            model.addAttribute("error", "Erro ao registrar usuário: " + e.getMessage());
+            return "register";
+        }
+    }
+    
+    @PostMapping("/register-user")
+    public String registerUser(@RequestParam String username,
+                             @RequestParam String password,
+                             @RequestParam String email,
+                             RedirectAttributes redirectAttributes) {
+        try {
+            // Check if username already exists
+            if (userDetailsService.existsByUsername(username)) {
+                redirectAttributes.addFlashAttribute("error", "Nome de usuário já existe. Escolha outro nome de usuário.");
+                return "redirect:/users";
+            }
+            
+            // Check if email already exists
+            if (userRepository.findByEmail(email).isPresent()) {
+                redirectAttributes.addFlashAttribute("error", "E-mail já cadastrado. Use outro e-mail.");
+                return "redirect:/users";
+            }
+            
+            // Create new user
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(password);
+            user.setEmail(email);
+            
+            // Set UserDetails fields
+            user.setEnabled(true);
+            user.setAccountNonExpired(true);
+            user.setAccountNonLocked(true);
+            user.setCredentialsNonExpired(true);
+            
+            // Save user
+            userDetailsService.saveUser(user);
+            
+            redirectAttributes.addFlashAttribute("success", "Usuário '" + username + "' registrado com sucesso!");
+            return "redirect:/users";
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Erro ao registrar usuário: " + e.getMessage());
+            return "redirect:/users";
+        }
+    }
+    
+    @PostMapping("/register-user-complete")
+    public String registerUserComplete(User user, RedirectAttributes redirectAttributes) {
+        try {
+            // Check if username already exists
+            if (userDetailsService.existsByUsername(user.getUsername())) {
+                redirectAttributes.addFlashAttribute("error", "Nome de usuário já existe. Escolha outro nome de usuário.");
+                return "redirect:/users";
+            }
+            
+            // Check if email already exists
+            if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+                redirectAttributes.addFlashAttribute("error", "E-mail já cadastrado. Use outro e-mail.");
+                return "redirect:/users";
+            }
+            
+            // Set UserDetails fields
+            user.setEnabled(true);
+            user.setAccountNonExpired(true);
+            user.setAccountNonLocked(true);
+            user.setCredentialsNonExpired(true);
+            
+            // Save user
+            userDetailsService.saveUser(user);
+            
+            redirectAttributes.addFlashAttribute("success", "Usuário '" + user.getNome() + "' cadastrado com sucesso!");
+            return "redirect:/users";
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Erro ao cadastrar usuário: " + e.getMessage());
+            return "redirect:/users";
+        }
+    }
+    
+    @GetMapping("/delete-user")
+    public String deleteUser(@RequestParam String username, RedirectAttributes redirectAttributes) {
+        try {
+            java.util.Optional<User> userOpt = userRepository.findByUsername(username);
+            if (userOpt.isPresent()) {
+                userRepository.delete(userOpt.get());
+                redirectAttributes.addFlashAttribute("success", "Usuário '" + username + "' excluído com sucesso!");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Usuário não encontrado.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Erro ao excluir usuário: " + e.getMessage());
+        }
+        return "redirect:/users";
     }
 }
