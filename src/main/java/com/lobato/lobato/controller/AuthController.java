@@ -57,13 +57,13 @@ public class AuthController {
     @ResponseBody
     public String createSimpleUser() {
         try {
-            // Create user with all required fields
+            
             User user = new User();
             user.setUsername("simpleuser");
             user.setEmail("simple@example.com");
             user.setPassword("password123");
 
-            // Set all UserDetails fields explicitly
+           
             user.setEnabled(true);
             user.setAccountNonExpired(true);
             user.setAccountNonLocked(true);
@@ -124,13 +124,13 @@ public class AuthController {
     @GetMapping("/loans")
     public String loans(Principal principal, Model model) {
         model.addAttribute("username", principal.getName());
-        return "redirect:/users"; // Redirect to users for now
+        return "redirect:/users"; 
     }
 
     @GetMapping("/returns")
     public String returns(Principal principal, Model model) {
         model.addAttribute("username", principal.getName());
-        return "redirect:/users"; // Redirect to users for now
+        return "redirect:/users"; 
     }
 
     @PostMapping("/register-user-complete")
@@ -155,20 +155,19 @@ public class AuthController {
             }
             System.out.println("=====================================");
 
-            // Check if username already exists
+            
             if (userDetailsService.existsByUsername(user.getUsername())) {
                 redirectAttributes.addFlashAttribute("error",
                         "Nome de usuário já existe. Escolha outro nome de usuário.");
                 return "redirect:/users";
             }
 
-            // Check if email already exists
             if (userRepository.findByEmail(user.getEmail()).isPresent()) {
                 redirectAttributes.addFlashAttribute("error", "E-mail já cadastrado. Use outro e-mail.");
                 return "redirect:/users";
             }
 
-            // Validate required documents
+
             if (comprovanteResidenciaFile == null || comprovanteResidenciaFile.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", "Comprovante de residência é obrigatório.");
                 return "redirect:/users";
@@ -179,7 +178,7 @@ public class AuthController {
                 return "redirect:/users";
             }
 
-            // Process file uploads
+        
             try {
                 user.setComprovanteResidencia(comprovanteResidenciaFile.getBytes());
                 user.setComprovanteResidenciaNome(comprovanteResidenciaFile.getOriginalFilename());
@@ -198,13 +197,13 @@ public class AuthController {
                 return "redirect:/users";
             }
 
-            // Set UserDetails fields
+          
             user.setEnabled(true);
             user.setAccountNonExpired(true);
             user.setAccountNonLocked(true);
             user.setCredentialsNonExpired(true);
 
-            // Save user
+            
             userDetailsService.saveUser(user);
 
             redirectAttributes.addFlashAttribute("success", "Usuário '" + user.getNome() + "' cadastrado com sucesso!");
@@ -219,18 +218,17 @@ public class AuthController {
     @GetMapping("/delete-user")
     public String deleteUser(@RequestParam String username, RedirectAttributes redirectAttributes) {
         try {
-            // Find all users with this username (in case there are duplicates)
+          
             List<User> usersWithSameUsername = userRepository.findAllByUsername(username);
             
             if (usersWithSameUsername.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", "Usuário não encontrado.");
             } else if (usersWithSameUsername.size() == 1) {
-                // Only one user found, safe to delete
+              
                 userRepository.delete(usersWithSameUsername.get(0));
                 redirectAttributes.addFlashAttribute("success", "Usuário '" + username + "' excluído com sucesso!");
             } else {
-                // Multiple users found with same username (duplicates)
-                // Delete all of them and inform the user
+               
                 userRepository.deleteAll(usersWithSameUsername);
                 redirectAttributes.addFlashAttribute("success", 
                     "Encontrados " + usersWithSameUsername.size() + " usuários duplicados com username '" + username + "'. Todos foram excluídos.");
@@ -260,8 +258,7 @@ public class AuthController {
                 if (users.size() > 1) {
                     report.append("Username '").append(username).append("': ")
                           .append(users.size()).append(" duplicatas encontradas<br>");
-                    
-                    // Keep the first user, delete the rest
+                 
                     List<User> duplicatesToDelete = users.subList(1, users.size());
                     userRepository.deleteAll(duplicatesToDelete);
                     totalDuplicates += duplicatesToDelete.size();
@@ -287,7 +284,7 @@ public class AuthController {
         }
     }
 
-    // Endpoints para visualizar documentos carregados
+   
     @GetMapping("/user/{userId}/comprovante-residencia")
     public ResponseEntity<byte[]> getComprovanteResidencia(@PathVariable String userId) {
         try {
