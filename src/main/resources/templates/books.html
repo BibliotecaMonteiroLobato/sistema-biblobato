@@ -273,7 +273,7 @@
 </head>
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
+       
         <nav class="sidebar">
             <div class="sidebar-header">
                 <div class="d-flex align-items-center">
@@ -310,9 +310,9 @@
             </ul>
         </nav>
 
-        <!-- Main Content -->
+        
         <main class="content">
-            <!-- Content Header -->
+            
             <div class="content-header">
                 <h1 class="page-title">
                     <i class="fas fa-book me-3"></i>
@@ -325,7 +325,7 @@
                 </div>
             </div>
 
-            <!-- Alerts -->
+           
             <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="fas fa-check-circle me-2"></i>
                 <span th:text="${success}"></span>
@@ -338,7 +338,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
-            <!-- Books Table -->
+         
             <div class="books-card">
                 <div class="card-header">
                     <h3 class="card-title">Lista de Livros</h3>
@@ -542,13 +542,13 @@
 
         function confirmDelete() {
             if (bookToDelete) {
-                // Redirect to delete endpoint
+               
                 window.location.href = '/delete-book?title=' + encodeURIComponent(bookToDelete);
             }
         }
 
         function editBook(bookId) {
-            // Fetch book data and populate edit modal
+          
             fetch('/api/book/' + bookId)
                 .then(response => response.json())
                 .then(book => {
