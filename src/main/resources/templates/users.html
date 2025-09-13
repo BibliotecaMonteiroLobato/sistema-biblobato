@@ -209,6 +209,41 @@
             font-weight: 600;
         }
         
+        .upload-btn {
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        .upload-btn:hover {
+            background-color: #e9ecef;
+            border-color: #6c757d;
+        }
+        
+        .upload-btn.file-selected {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .upload-btn input[type="file"] {
+            display: none;
+        }
+        
+        .file-info {
+            margin-top: 8px;
+            padding: 8px;
+            background-color: rgba(255,255,255,0.8);
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+        
         .btn-danger {
             background: linear-gradient(45deg, #dc3545 0%, #c82333 100%);
             border: none;
@@ -318,12 +353,13 @@
                                     <th>Telefone</th>
                                     <th>Cidade</th>
                                     <th>Estado</th>
+                                    <th>Documentos</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr th:if="${users == null || users.isEmpty()}">
-                                    <td colspan="8" class="text-center text-muted py-5">
+                                    <td colspan="9" class="text-center text-muted py-5">
                                         <i class="fas fa-users fa-3x mb-3 d-block"></i>
                                         <h5>Nenhum usuário cadastrado</h5>
                                         <p>Clique no botão "Registrar Novo Usuário" para começar</p>
@@ -337,6 +373,35 @@
                                     <td class="masked-data" th:text="${user.telefone != null ? user.telefone : 'Não informado'}">(11) 00000-0000</td>
                                     <td th:text="${user.cidade != null ? user.cidade : 'Não informado'}">Cidade</td>
                                     <td th:text="${user.estado != null ? user.estado : 'Não informado'}">Estado</td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <a th:if="${user.comprovanteResidencia != null}" 
+                                               th:href="@{/user/{id}/comprovante-residencia(id=${user.id})}" 
+                                               target="_blank" 
+                                               class="btn btn-sm btn-outline-info" 
+                                               title="Ver comprovante de residência">
+                                                <i class="fas fa-home"></i>
+                                            </a>
+                                            <span th:if="${user.comprovanteResidencia == null}" 
+                                                  class="badge bg-secondary" 
+                                                  title="Comprovante de residência não enviado">
+                                                <i class="fas fa-home"></i> -
+                                            </span>
+                                            
+                                            <a th:if="${user.comprovanteDocumento != null}" 
+                                               th:href="@{/user/{id}/comprovante-documento(id=${user.id})}" 
+                                               target="_blank" 
+                                               class="btn btn-sm btn-outline-success" 
+                                               title="Ver comprovante de documento">
+                                                <i class="fas fa-id-card"></i>
+                                            </a>
+                                            <span th:if="${user.comprovanteDocumento == null}" 
+                                                  class="badge bg-secondary" 
+                                                  title="Comprovante de documento não enviado">
+                                                <i class="fas fa-id-card"></i> -
+                                            </span>
+                                        </div>
+                                    </td>
                                     <td>
                                         <button class="action-btn delete" title="Excluir usuário" th:data-username="${user.username}" onclick="deleteUser(this.dataset.username)">
                                             <i class="fas fa-trash"></i>
@@ -458,25 +523,37 @@
                             </div>
                         </div>
 
-                        <!-- Documentos - Funcionalidade será implementada em versão futura -->
-                        <!-- 
+                        <!-- Documentos -->
                         <div class="section-title">
                             <h6><i class="fas fa-file-upload me-2"></i>Documentos</h6>
                         </div>
                         
                         <div class="row mb-4">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Comprovante de Residência</label>
-                                <input type="file" class="form-control" name="comprovanteResidencia" accept=".pdf,.jpg,.jpeg,.png">
-                                <div class="form-text">Formatos aceitos: PDF, JPG, PNG</div>
+                                <label class="form-label">Comprovante de Residência <span class="text-danger">*</span></label>
+                                <div class="upload-btn" onclick="document.getElementById('comprovanteResidenciaUser').click()">
+                                    <input type="file" id="comprovanteResidenciaUser" name="comprovanteResidenciaFile" accept=".pdf,.jpg,.jpeg,.png" required>
+                                    <i class="fas fa-upload mb-2"></i>
+                                    <div><span>+ Selecionar arquivo</span></div>
+                                    <div class="file-info" style="display: none;">
+                                        <small class="text-muted"></small>
+                                    </div>
+                                </div>
+                                <div class="form-text">Formatos aceitos: PDF, JPG, JPEG, PNG (máx. 5MB)</div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Comprovante de Documento</label>
-                                <input type="file" class="form-control" name="comprovanteDocumento" accept=".pdf,.jpg,.jpeg,.png">
-                                <div class="form-text">Formatos aceitos: PDF, JPG, PNG</div>
+                                <label class="form-label">Comprovante de Documento Pessoal <span class="text-danger">*</span></label>
+                                <div class="upload-btn" onclick="document.getElementById('comprovanteDocumentoUser').click()">
+                                    <input type="file" id="comprovanteDocumentoUser" name="comprovanteDocumentoFile" accept=".pdf,.jpg,.jpeg,.png" required>
+                                    <i class="fas fa-upload mb-2"></i>
+                                    <div><span>+ Selecionar arquivo</span></div>
+                                    <div class="file-info" style="display: none;">
+                                        <small class="text-muted"></small>
+                                    </div>
+                                </div>
+                                <div class="form-text">Formatos aceitos: PDF, JPG, JPEG, PNG (máx. 5MB)</div>
                             </div>
                         </div>
-                        -->
 
                         <!-- Credenciais de Acesso -->
                         <div class="section-title">
@@ -523,6 +600,54 @@
             if (userToDelete) {
                 // Redirect to delete endpoint
                 window.location.href = '/delete-user?username=' + encodeURIComponent(userToDelete);
+            }
+        }
+        
+        // Handle file uploads for user registration form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Comprovante de Residência
+            const comprovanteResidenciaInput = document.getElementById('comprovanteResidenciaUser');
+            if (comprovanteResidenciaInput) {
+                comprovanteResidenciaInput.addEventListener('change', function(e) {
+                    handleFileSelection(e, 'comprovanteResidenciaUser');
+                });
+            }
+            
+            // Comprovante de Documento
+            const comprovanteDocumentoInput = document.getElementById('comprovanteDocumentoUser');
+            if (comprovanteDocumentoInput) {
+                comprovanteDocumentoInput.addEventListener('change', function(e) {
+                    handleFileSelection(e, 'comprovanteDocumentoUser');
+                });
+            }
+        });
+        
+        function handleFileSelection(event, inputId) {
+            const file = event.target.files[0];
+            const button = event.target.parentElement;
+            const span = button.querySelector('span');
+            const fileInfo = button.querySelector('.file-info');
+            const fileInfoText = fileInfo.querySelector('small');
+            
+            if (file) {
+                // Check file size (5MB limit)
+                const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+                if (file.size > maxSize) {
+                    alert('Arquivo muito grande! O tamanho máximo permitido é 5MB.');
+                    event.target.value = '';
+                    return;
+                }
+                
+                span.textContent = file.name;
+                button.classList.add('file-selected');
+                
+                const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+                fileInfoText.textContent = `Tamanho: ${fileSize} MB - Tipo: ${file.type}`;
+                fileInfo.style.display = 'block';
+            } else {
+                span.textContent = '+ Selecionar arquivo';
+                button.classList.remove('file-selected');
+                fileInfo.style.display = 'none';
             }
         }
     </script>

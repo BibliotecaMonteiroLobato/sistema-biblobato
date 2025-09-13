@@ -21,18 +21,18 @@ public class User implements UserDetails {
     @Id
     private String id;
     
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
+    @NotBlank(message = "Username é obrigatório")
+    @Size(min = 3, max = 20, message = "Username precisa ter mais de 3 caracteres")
     @Indexed(unique = true)
     private String username;
     
-    @NotBlank(message = "Email is required")
-    @Email(message = "Please provide a valid email")
+    @NotBlank(message = "E-mail é obrigatório")
+    @Email(message = "o e-mail precisa ser válido")
     @Indexed(unique = true)
     private String email;
     
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
+    @NotBlank(message = "Senha é obrigatória")
+    @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
     private String password;
     
     // Campos pessoais
@@ -53,9 +53,14 @@ public class User implements UserDetails {
     private String cidade;
     private String estado;
     
-    // Campos para documentos
-    private String comprovanteResidencia;
-    private String comprovanteDocumento;
+    // Campos para documentos (armazenados como dados binários)
+    private byte[] comprovanteResidencia;
+    private String comprovanteResidenciaNome;
+    private String comprovanteResidenciaContentType;
+    
+    private byte[] comprovanteDocumento;
+    private String comprovanteDocumentoNome;
+    private String comprovanteDocumentoContentType;
     
     private Set<String> roles;
     
@@ -252,19 +257,51 @@ public class User implements UserDetails {
         this.estado = estado;
     }
     
-    public String getComprovanteResidencia() {
+    public byte[] getComprovanteResidencia() {
         return comprovanteResidencia;
     }
     
-    public void setComprovanteResidencia(String comprovanteResidencia) {
+    public void setComprovanteResidencia(byte[] comprovanteResidencia) {
         this.comprovanteResidencia = comprovanteResidencia;
     }
     
-    public String getComprovanteDocumento() {
+    public String getComprovanteResidenciaNome() {
+        return comprovanteResidenciaNome;
+    }
+    
+    public void setComprovanteResidenciaNome(String comprovanteResidenciaNome) {
+        this.comprovanteResidenciaNome = comprovanteResidenciaNome;
+    }
+    
+    public String getComprovanteResidenciaContentType() {
+        return comprovanteResidenciaContentType;
+    }
+    
+    public void setComprovanteResidenciaContentType(String comprovanteResidenciaContentType) {
+        this.comprovanteResidenciaContentType = comprovanteResidenciaContentType;
+    }
+    
+    public byte[] getComprovanteDocumento() {
         return comprovanteDocumento;
     }
     
-    public void setComprovanteDocumento(String comprovanteDocumento) {
+    public void setComprovanteDocumento(byte[] comprovanteDocumento) {
         this.comprovanteDocumento = comprovanteDocumento;
+    }
+    
+    public String getComprovanteDocumentoNome() {
+        return comprovanteDocumentoNome;
+    }
+    
+    public void setComprovanteDocumentoNome(String comprovanteDocumentoNome) {
+        this.comprovanteDocumentoNome = comprovanteDocumentoNome;
+    }
+    
+    public String getComprovanteDocumentoContentType() {
+        return comprovanteDocumentoContentType;
+    }
+    
+    public void setComprovanteDocumentoContentType(String comprovanteDocumentoContentType) {
+        this.comprovanteDocumentoContentType = comprovanteDocumentoContentType;
     }
 }

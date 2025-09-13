@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Biblioteca - Livros</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #8B4513 0%, #A0522D 100%);
+            color: white;
+            padding: 0;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .nav-item {
+            margin: 5px 0;
+        }
+        
+        .nav-link {
+            display: block;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 0;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .content-header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border-left: 5px solid #8B4513;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn-add {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            color: white;
+        }
+        
+        .books-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            color: white;
+            padding: 20px 30px;
+            border-bottom: none;
+        }
+        
+        .card-title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .books-table {
+            margin: 0;
+        }
+        
+        .books-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .books-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+        
+        .books-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 2px;
+        }
+        
+        .action-btn.edit {
+            color: #ffc107;
+            background: rgba(255, 193, 7, 0.1);
+        }
+        
+        .action-btn.delete {
+            color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+        }
+        
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #dee2e6;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-bottom: none;
+        }
+        
+        .modal-title {
+            font-weight: 600;
+        }
+        
+        .btn-close {
+            filter: invert(1);
+        }
+        
+        .section-title {
+            margin: 20px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .section-title h6 {
+            color: #495057;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            font-weight: 600;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+            font-weight: 600;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            border: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-book-open me-3" style="font-size: 24px;"></i>
+                    <h4 class="sidebar-title">BiblioLobato</h4>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/users" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        Usuários
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/books" class="nav-link active">
+                        <i class="fas fa-book"></i>
+                        Livros
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/loans" class="nav-link">
+                        <i class="fas fa-hand-holding"></i>
+                        Empréstimos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/returns" class="nav-link">
+                        <i class="fas fa-undo"></i>
+                        Devoluções
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Content Header -->
+            <div class="content-header">
+                <h1 class="page-title">
+                    <i class="fas fa-book me-3"></i>
+                    Gerenciamento de Livros
+                </h1>
+                <div class="header-actions">
+                    <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#registerBookModal">
+                        <i class="fas fa-plus me-2"></i>Cadastrar Livro
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Books Table -->
+            <div class="books-card">
+                <div class="card-header">
+                    <h3 class="card-title">Lista de Livros</h3>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table books-table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Autor</th>
+                                <th>Editora</th>
+                                <th>Ano</th>
+                                <th>Quantidade</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${books == null || books.isEmpty()}">
+                                <td colspan="6" class="text-center text-muted py-5">
+                                    <i class="fas fa-book fa-3x mb-3 d-block"></i>
+                                    <h5>Nenhum livro cadastrado</h5>
+                                    <p>Clique no botão "Cadastrar Livro" para começar</p>
+                                </td>
+                            </tr>
+                            <tr th:each="book : ${books}">
+                                <td>
+                                    <strong th:text="${book.title}">Título do Livro</strong>
+                                </td>
+                                <td th:text="${book.author}">Autor</td>
+                                <td th:text="${book.publisher}">Editora</td>
+                                <td th:text="${book.year}">Ano</td>
+                                <td>
+                                    <span class="badge bg-info" th:text="${book.amount}">0</span>
+                                </td>
+                                <td>
+                                    <button class="action-btn edit" title="Editar livro" th:data-book-id="${book.id}" onclick="editBook(this.dataset.bookId)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete" title="Excluir livro" th:data-book-title="${book.title}" onclick="deleteBook(this.dataset.bookTitle)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div class="modal fade" id="deleteBookModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirmar Exclusão
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">Tem certeza que deseja excluir este livro?</p>
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Atenção:</strong> Esta ação não pode ser desfeita!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                        <i class="fas fa-trash me-2"></i>Sim, Excluir
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Cadastro de Livro -->
+    <div class="modal fade" id="registerBookModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-book-medical me-2"></i>
+                        Cadastrar Novo Livro
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerBookForm" th:action="@{/register-book}" method="post">
+                        <!-- Informações do Livro -->
+                        <div class="section-title">
+                            <h6><i class="fas fa-book me-2"></i>Informações do Livro</h6>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Título *</label>
+                                <input type="text" class="form-control" name="title" placeholder="Digite o título do livro" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Autor *</label>
+                                <input type="text" class="form-control" name="author" placeholder="Digite o nome do autor" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Editora *</label>
+                                <input type="text" class="form-control" name="publisher" placeholder="Digite o nome da editora" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ano de Publicação *</label>
+                                <input type="number" class="form-control" name="year" placeholder="Ex: 2023" min="1000" max="2030" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quantidade de Exemplares *</label>
+                                <input type="number" class="form-control" name="amount" placeholder="Ex: 5" min="1" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="document.getElementById('registerBookForm').submit()">
+                        <i class="fas fa-save me-2"></i>Cadastrar Livro
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Livro -->
+    <div class="modal fade" id="editBookModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title text-dark">
+                        <i class="fas fa-edit me-2"></i>
+                        Editar Livro
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editBookForm" th:action="@{/update-book}" method="post">
+                        <input type="hidden" id="editBookId" name="id">
+                        
+                        <!-- Informações do Livro -->
+                        <div class="section-title">
+                            <h6><i class="fas fa-book me-2"></i>Informações do Livro</h6>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Título *</label>
+                                <input type="text" class="form-control" id="editTitle" name="title" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Autor *</label>
+                                <input type="text" class="form-control" id="editAuthor" name="author" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Editora *</label>
+                                <input type="text" class="form-control" id="editPublisher" name="publisher" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ano de Publicação *</label>
+                                <input type="number" class="form-control" id="editYear" name="year" min="1000" max="2030" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quantidade de Exemplares *</label>
+                                <input type="number" class="form-control" id="editAmount" name="amount" min="1" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="document.getElementById('editBookForm').submit()">
+                        <i class="fas fa-save me-2"></i>Salvar Alterações
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let bookToDelete = null;
+
+        function deleteBook(bookTitle) {
+            bookToDelete = bookTitle;
+            const modal = new bootstrap.Modal(document.getElementById('deleteBookModal'));
+            modal.show();
+        }
+
+        function confirmDelete() {
+            if (bookToDelete) {
+                // Redirect to delete endpoint
+                window.location.href = '/delete-book?title=' + encodeURIComponent(bookToDelete);
+            }
+        }
+
+        function editBook(bookId) {
+            // Fetch book data and populate edit modal
+            fetch('/api/book/' + bookId)
+                .then(response => response.json())
+                .then(book => {
+                    document.getElementById('editBookId').value = book.id;
+                    document.getElementById('editTitle').value = book.title;
+                    document.getElementById('editAuthor').value = book.author;
+                    document.getElementById('editPublisher').value = book.publisher;
+                    document.getElementById('editYear').value = book.year;
+                    document.getElementById('editAmount').value = book.amount;
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('editBookModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    alert('Erro ao carregar dados do livro: ' + error);
+                });
+        }
+    </script>
+</body>
+</html>
