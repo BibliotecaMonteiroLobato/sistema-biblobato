@@ -194,20 +194,19 @@
         <div class="login-card">
             <h2 class="login-title">Login</h2>
             
-            <!-- Success message -->
+         
             <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
                 <span th:text="${message}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
             
-            <!-- Success message -->
+            
             <div th:if="${param.registered}" class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="fas fa-check-circle me-2"></i>
                 Cadastro realizado com sucesso! Agora você pode fazer login.
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
             
-            <!-- Error message -->
             <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
                 <span th:text="${error}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -231,7 +230,7 @@
         </div>
     </div>
     
-    <!-- Books Illustration -->
+    
     <div class="books-illustration">
         <div class="book book5"></div>
         <div class="book book4"></div>
